@@ -91,7 +91,7 @@ async function run() {
     });
 
 
-    
+
     // get all students in mongodb only use for admin 
     app.get("/students",  async (req, res) => {
       const data = await studentsCalection.find().toArray();
@@ -99,6 +99,33 @@ async function run() {
     });
 
 
+
+
+    // student update profile only use for admin 
+    app.patch("/student/:id" , async(req, res)=>{
+        const id = req.params.id 
+        const roll = req.body
+        const studentId = {_id : new ObjectId(id)}
+        const result = await studentsCalection.findOne(studentId)
+        if(result){
+            const rollChange = {
+                roll: roll
+            }
+            const data = await studentsCalection.updateOne(studentId, rollChange)
+            res.send({ result: true, data });
+        }
+
+    })
+
+
+    // student delete code 
+    app.delete("/student/:id" , async(req, res) =>{
+        const id = req.params.id 
+        const studentId = {_id : new ObjectId(id)}
+        const data = await studentsCalection.deleteOne(studentId)
+        res.send({ result: true, data });
+
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log(
