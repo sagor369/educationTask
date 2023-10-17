@@ -36,18 +36,33 @@ async function run() {
 
     await client.connect();
 
+    // middleFanction
+    const mutchStudent = async (req, res, next) => {
+      const email = req.params.email;
+      const mutchEmail = {
+        email: email,
+      };
+      const mutchStudent = await studentsCalection.findOne(mutchEmail);
+      if (!mutchStudent) {
+        res.send({ message: "you are not a valide student" });
+      } else {
+        next();
+      }
+    };
+
     // student calection code
 
     // student added in mongodb code
     app.post("/add_student", async (req, res) => {
       const studentDetails = req.body;
-      const { name, email, phone, userName, photo } = studentDetails;
+      const { name, email, phone, userName, photo, roll } = studentDetails;
       const query = {
         name,
         email,
         phone,
         userName,
         photo,
+        roll
       };
 
       // student  mutching in mongodb
@@ -67,8 +82,23 @@ async function run() {
     });
 
 
-    // get student in mongodb 
+
+    // get student in mongodb single student
+    app.get("/student/:email", mutchStudent, async (req, res) => {
+      const email = req.params.email;
+      const data = await studentsCalection.findOne(email);
+      res.send({ result: true, data });
+    });
+
+
     
+    // get all students in mongodb only use for admin 
+    app.get("/students",  async (req, res) => {
+      const data = await studentsCalection.find().toArray();
+      res.send({ result: true, data });
+    });
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
