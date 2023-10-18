@@ -91,14 +91,11 @@ async function run() {
     });
 
 
-
     // get all students in mongodb only use for admin 
     app.get("/students",  async (req, res) => {
       const data = await studentsCalection.find().toArray();
       res.send({ result: true, data });
     });
-
-
 
 
     // student update profile only use for admin 
@@ -114,7 +111,6 @@ async function run() {
             const data = await studentsCalection.updateOne(studentId, rollChange)
             res.send({ result: true, data });
         }
-
     })
 
 
@@ -125,6 +121,31 @@ async function run() {
         const data = await studentsCalection.deleteOne(studentId)
         res.send({ result: true, data });
 
+    })
+
+
+    // course calection code 
+
+    // all course list 
+    app.get("/courses", async(req, res)=>{
+      const data = await courseCalection.find().toArray()
+      res.send({ result: true, data });
+    })
+
+
+    // course patch code 
+    app.patch("/course", async(req, res) =>{
+      const courseData = req.body 
+      const {title, description, image, rating, price} = courseData
+      const queryData = {
+        title,
+        description,
+        image,
+        rating,
+        price
+      } 
+      const data = await courseCalection.insertOne(queryData)
+      res.send({ result: true, data });
     })
 
     await client.db("admin").command({ ping: 1 });
