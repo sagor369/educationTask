@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -133,8 +133,8 @@ async function run() {
     })
 
 
-    // course patch code 
-    app.patch("/course", async(req, res) =>{
+    // course create code 
+    app.post("/course", async(req, res) =>{
       const courseData = req.body 
       const {title, description, image, rating, price} = courseData
       const queryData = {
@@ -146,6 +146,33 @@ async function run() {
       } 
       const data = await courseCalection.insertOne(queryData)
       res.send({ result: true, data });
+    })
+
+
+    // course update code 
+    app.patch("/course/:id", async(req,res) =>{
+      const id = req.params.id
+      const courseId = {_id: new ObjectId(id)}
+      const {body} = req.body
+      const {title, description, image, rating, price} = body
+
+      const findCourse = await courseCalection.findOne(courseId)
+
+
+      // update data create 
+      const queryData = {
+        title: title || findCourse.title,
+        description: description || findCourse.description,
+        image: image || findCourse.image,
+        rating : rating || findCourse.rating,
+        price: price || findCourse.price
+      } 
+      
+      if(findCourse){
+        const data = await courseCalection.updateOne(courseId, queryData )
+        res.send({ result: true, data });
+      }
+
     })
 
     await client.db("admin").command({ ping: 1 });
