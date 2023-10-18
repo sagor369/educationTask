@@ -34,21 +34,41 @@ async function run() {
       .db("educationTask")
       .collection("enrollment");
 
+    // all enrollment Calection
+    const adminCalection = client
+      .db("educationTask")
+      .collection("admin");
+
     await client.connect();
 
     // middleFanction
     const mutchStudent = async (req, res, next) => {
       const email = req.params.email;
+      console.log(email)
       const mutchEmail = {
         email: email,
       };
       const mutchStudent = await studentsCalection.findOne(mutchEmail);
       if (!mutchStudent) {
-        res.send({ message: "you are not a valide student" });
+        res.send({result: false,  message: "you are not a valide student" });
       } else {
         next();
       }
     };
+
+
+    // admin check code 
+    const isAdmin = async(req, res, next) =>{
+      const {adminEmail }= req.body 
+      const queryData = {adminEmail}
+      const checkEmail = await adminCalection.findOne(queryData)
+      if(!checkEmail){
+        res.send({result:false, message: "you ar not a admin "})
+      }
+      else{
+        next()
+      }
+    }
 
     // student calection code
 
@@ -86,7 +106,10 @@ async function run() {
     // get student in mongodb single student
     app.get("/student/:email", mutchStudent, async (req, res) => {
       const email = req.params.email;
-      const data = await studentsCalection.findOne(email);
+      const queryData = {
+        email: email
+      }
+      const data = await studentsCalection.findOne(queryData);
       res.send({ result: true, data });
     });
 
@@ -99,7 +122,7 @@ async function run() {
 
 
     // student update profile only use for admin 
-    app.patch("/student/:id" , async(req, res)=>{
+    app.patch("/student/:id" , isAdmin,  async(req, res)=>{
         const id = req.params.id 
         const roll = req.body
         const studentId = {_id : new ObjectId(id)}
@@ -115,7 +138,7 @@ async function run() {
 
 
     // student delete code 
-    app.delete("/student/:id" , async(req, res) =>{
+    app.delete("/student/:id" ,isAdmin,  async(req, res) =>{
         const id = req.params.id 
         const studentId = {_id : new ObjectId(id)}
         const data = await studentsCalection.deleteOne(studentId)
@@ -134,7 +157,7 @@ async function run() {
 
 
     // course create code 
-    app.post("/course", async(req, res) =>{
+    app.post("/course", isAdmin, async(req, res) =>{
       const courseData = req.body 
       const {title, description, image, rating, price} = courseData
       const queryData = {
@@ -150,7 +173,7 @@ async function run() {
 
 
     // course update code 
-    app.patch("/course/:id", async(req,res) =>{
+    app.patch("/course/:id", isAdmin, async(req,res) =>{
       const id = req.params.id
       const courseId = {_id: new ObjectId(id)}
       const {body} = req.body
@@ -175,7 +198,7 @@ async function run() {
     })
 
     //  course delete code 
-    app.delete("/course/:id", async(req, res) =>{
+    app.delete("/course/:id", isAdmin, async(req, res) =>{
       const id = req.params.id
       const deleteId = {_id: new ObjectId(id)}
       const data = await courseCalection.deleteOne(deleteId)
@@ -186,9 +209,9 @@ async function run() {
 
     // all enrollment code 
 
-
+    // TODO admin 
     // get enrollment code 
-    app.get("/enroll", async(req, res) =>{
+    app.get("/enroll", isAdmin, async(req, res) =>{
       const data = await enrollmentCalection.find().toArray()
       res.send({ result: true, data });
     })
@@ -207,7 +230,25 @@ async function run() {
     })
 
 
+    // enrollment delete code 
+    app.delete("/enroll/:id", isAdmin, async(req, res) =>{
+      const id = req.params.id
+      const deleteId = {_id: new ObjectId(id)}
+      const data = await enrollmentCalection.deleteOne(deleteId)
+      res.send({ result: true, data });
+    })
 
+
+    // individually enrollment list code 
+    app.get("/enroll/:title" , isAdmin,  async(req, res) =>{
+      const title = req.params.title 
+      const mutchTitle = {
+      courseTitle: title 
+      }
+      const data = await enrollmentCalection.find(mutchTitle).toArray()
+      res.send({ result: true, data });
+
+    })
 
 
 
