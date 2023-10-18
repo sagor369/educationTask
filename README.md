@@ -23,5 +23,5 @@
 ## Enrollment all API list  
 * http://host:5000/enroll   // Enrollment create API only admin  
 * http://host:5000/enroll  // show all enrollment list API only admin  
-* /enroll/:id   // Delete course API only admin  
-* /enroll/:title   // individually enrollment course search API only admi 
+* http://host:5000/enroll/:id   // Delete course API only admin  
+* http://host:5000/enroll/:title   // individually enrollment course search API only admi 
