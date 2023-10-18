@@ -158,7 +158,6 @@ async function run() {
 
       const findCourse = await courseCalection.findOne(courseId)
 
-
       // update data create 
       const queryData = {
         title: title || findCourse.title,
@@ -167,13 +166,51 @@ async function run() {
         rating : rating || findCourse.rating,
         price: price || findCourse.price
       } 
-      
+
       if(findCourse){
         const data = await courseCalection.updateOne(courseId, queryData )
         res.send({ result: true, data });
       }
 
     })
+
+    //  course delete code 
+    app.delete("/course/:id", async(req, res) =>{
+      const id = req.params.id
+      const deleteId = {_id: new ObjectId(id)}
+      const data = await courseCalection.deleteOne(deleteId)
+      res.send({ result: true, data });
+    })
+
+
+
+    // all enrollment code 
+
+
+    // get enrollment code 
+    app.get("/enroll", async(req, res) =>{
+      const data = await enrollmentCalection.find().toArray()
+      res.send({ result: true, data });
+    })
+
+
+    // enrollment create code 
+    app.post("/enroll", async(req, res) =>{
+      const {body} = req.body
+      const {courseTitle, studentName, studentEmail, courseId } =body
+
+      const queryData = {
+        courseId, studentName, studentEmail, courseTitle
+      }
+      const data = await enrollmentCalection.insertOne(queryData)
+      res.send({ result: true, data });
+    })
+
+
+
+
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
